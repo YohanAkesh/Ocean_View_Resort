@@ -5,10 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * DatabaseConnection utility class for managing MySQL database connections
- * and initializing the database schema.
- */
 public class DatabaseConnection {
     // Database configuration
     private static final String DB_URL = "jdbc:mysql://localhost:3306/";
@@ -25,10 +21,6 @@ public class DatabaseConnection {
         }
     }
 
-    /**
-     * Get a connection to the database.
-     * @return Database connection
-     */
     public static Connection getConnection() throws SQLException {
         try {
             return DriverManager.getConnection(DB_FULL_URL, DB_USER, DB_PASSWORD);
@@ -38,9 +30,6 @@ public class DatabaseConnection {
         }
     }
 
-    /**
-     * Close a database connection.
-     */
     public static void closeConnection(Connection conn) {
         if (conn != null) {
             try {
