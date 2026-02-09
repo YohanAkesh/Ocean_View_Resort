@@ -2,7 +2,6 @@ package com.app.controller;
 
 import com.app.model.User;
 import com.app.service.AuthenticationService;
-import com.app.util.InputValidator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -45,26 +44,8 @@ public class RegisterServlet extends HttpServlet {
         String fullName = request.getParameter("fullName");
         String role = request.getParameter("role");
         
-        // Validate input
-        String error = null;
-        
-        if (username == null || username.trim().isEmpty()) {
-            error = "Username is required";
-        } else if (!InputValidator.isValidUsername(username)) {
-            error = "Username must be at least 3 characters and contain only alphanumeric characters";
-        } else if (password == null || password.trim().isEmpty()) {
-            error = "Password is required";
-        } else if (!InputValidator.isValidPassword(password)) {
-            error = "Password must be at least 6 characters";
-        } else if (fullName == null || fullName.trim().isEmpty()) {
-            error = "Full name is required";
-        } else if (!InputValidator.isValidName(fullName)) {
-            error = "Full name must contain only letters";
-        } else if (role == null || role.trim().isEmpty()) {
-            error = "Role is required";
-        } else if (!role.equals("ADMIN") && !role.equals("STAFF")) {
-            error = "Invalid role selected";
-        }
+        // Validate input using service
+        String error = authService.validateStaffRegistration(username, password, fullName, role);
         
         if (error != null) {
             response.sendRedirect("register.jsp?error=" + java.net.URLEncoder.encode(error, "UTF-8"));

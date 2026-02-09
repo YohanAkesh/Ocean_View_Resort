@@ -240,6 +240,11 @@
                         <h3>Register Staff</h3>
                         <p>Add new staff members</p>
                     </div>
+                    <div class="menu-card" onclick="location.href='manage-rooms.jsp'" style="box-shadow: none; background: #f0f0f0;">
+                        <div class="icon">🛏️</div>
+                        <h3>Manage Rooms</h3>
+                        <p>Add and manage rooms</p>
+                    </div>
                 </div>
             </div>
             <%
