@@ -1,6 +1,7 @@
 package com.app.controller;
 
 import com.app.model.User;
+import com.app.service.AuthenticationService;
 import com.app.service.RoomService;
 
 import javax.servlet.ServletException;
