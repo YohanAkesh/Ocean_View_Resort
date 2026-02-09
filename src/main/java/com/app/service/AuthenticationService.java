@@ -115,4 +115,48 @@ public class AuthenticationService {
             return false;
         }
     }
+
+    public boolean isValidUsername(String username) {
+        return username != null && username.length() >= 3 && username.matches("^[a-zA-Z0-9_]+$");
+    }
+
+    public boolean isValidPassword(String password) {
+        return password != null && password.length() >= 6;
+    }
+
+    public boolean isValidName(String name) {
+        return name != null && !name.isEmpty() && name.matches("^[a-zA-Z\\s]+$");
+    }
+
+    public boolean isValidEmail(String email) {
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+    }
+
+    public String validateStaffRegistration(String username, String password, String fullName, String role) {
+        if (username == null || username.trim().isEmpty()) {
+            return "Username is required";
+        }
+        if (!isValidUsername(username)) {
+            return "Username must be at least 3 characters and contain only alphanumeric characters";
+        }
+        if (password == null || password.trim().isEmpty()) {
+            return "Password is required";
+        }
+        if (!isValidPassword(password)) {
+            return "Password must be at least 6 characters";
+        }
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return "Full name is required";
+        }
+        if (!isValidName(fullName)) {
+            return "Full name must contain only letters";
+        }
+        if (role == null || role.trim().isEmpty()) {
+            return "Role is required";
+        }
+        if (!role.equals("ADMIN") && !role.equals("STAFF")) {
+            return "Invalid role selected";
+        }
+        return null;
+    }
 }
