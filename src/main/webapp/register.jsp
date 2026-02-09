@@ -1,4 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    // Check if user is logged in and is an admin
+    Object userObj = session.getAttribute("user");
+    String role = (String) session.getAttribute("role");
+    
+    if (userObj == null || !"ADMIN".equals(role)) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>

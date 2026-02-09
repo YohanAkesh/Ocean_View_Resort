@@ -10,9 +10,9 @@
     String role = (String) session.getAttribute("role");
     String fullName = (String) session.getAttribute("username");
     
-    // Redirect staff to their dashboard
-    if ("STAFF".equals(role)) {
-        response.sendRedirect("staff-dashboard.jsp");
+    // Redirect admins to their dashboard
+    if ("ADMIN".equals(role)) {
+        response.sendRedirect("dashboard.jsp");
         return;
     }
 %>
@@ -21,7 +21,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ocean View Resort - Admin Dashboard</title>
+    <title>Ocean View Resort - Staff Portal</title>
     <style>
         * {
             margin: 0;
@@ -35,7 +35,7 @@
         }
         
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
             color: white;
             padding: 20px 40px;
             display: flex;
@@ -64,7 +64,7 @@
         
         .logout-btn {
             background: white;
-            color: #667eea;
+            color: #2193b0;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
@@ -101,37 +101,71 @@
             font-size: 16px;
         }
         
-        .menu-grid {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2193b0;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
         }
         
         .menu-card {
             background: white;
-            padding: 25px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             text-align: center;
             text-decoration: none;
             color: inherit;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s;
             cursor: pointer;
+            border: 2px solid transparent;
         }
         
         .menu-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #2193b0;
+        }
+        
+        .menu-card .icon {
+            font-size: 64px;
+            margin-bottom: 15px;
         }
         
         .menu-card h3 {
             font-size: 24px;
             margin-bottom: 10px;
-        }
-        
-        .menu-card .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            color: #333;
         }
         
         .menu-card p {
@@ -139,16 +173,14 @@
             font-size: 14px;
         }
         
-        .admin-section {
-            border-top: 2px solid #667eea;
-            margin-top: 20px;
-            padding-top: 20px;
+        .menu-card.primary {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
         }
         
-        .admin-section h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 16px;
+        .menu-card.primary h3,
+        .menu-card.primary p {
+            color: white;
         }
         
         .error {
@@ -168,11 +200,24 @@
             margin-bottom: 20px;
             border: 1px solid #c3e6cb;
         }
+        
+        .section-title {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title h3 {
+            color: #2193b0;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h1>🏨 Ocean View Resort - Admin Dashboard</h1>
+        <h1>🏨 Ocean View Resort - Staff Portal</h1>
         <div class="user-info">
             <div class="user-details">
                 <p><strong><%= fullName %></strong></p>
@@ -199,7 +244,7 @@
             if (success != null && !success.isEmpty()) {
         %>
         <div class="success">
-            <strong>Success!</strong> Operation completed successfully.
+            <strong>Success!</strong> <%= success %>
         </div>
         <%
             }
@@ -207,28 +252,55 @@
         
         <div class="welcome">
             <h2>Welcome, <%= fullName %>! 👋</h2>
-            <p>Administrator Dashboard - Manage system settings, users, and hotel resources.</p>
+            <p>Manage guests and reservations efficiently with the Ocean View Resort Staff Portal.</p>
+        </div>
+        
+        <div class="section-title">
+            <h3>👥 Guest Management</h3>
         </div>
         
         <div class="menu-grid">
-            <div class="menu-card" onclick="location.href='register.jsp'">
-                <div class="icon">👥</div>
-                <h3>Register Staff</h3>
-                <p>Add new staff members</p>
+            <div class="menu-card primary" onclick="location.href='add-guest.jsp'">
+                <div class="icon">👤</div>
+                <h3>Register New Guest</h3>
+                <p>Add a new guest to the system</p>
             </div>
             
-            <div class="menu-card" onclick="location.href='manage-rooms.jsp'">
-                <div class="icon">🛏️</div>
-                <h3>Manage Rooms</h3>
-                <p>Add and manage hotel rooms</p>
+            <div class="menu-card" onclick="location.href='manage-guests.jsp'">
+                <div class="icon">📇</div>
+                <h3>Manage Guests</h3>
+                <p>View and update guest information</p>
+            </div>
+        </div>
+        
+        <div class="section-title">
+            <h3>📊 Reservation Management</h3>
+        </div>
+        
+        <div class="menu-grid">
+            <div class="menu-card primary" onclick="location.href='add-reservation.jsp'">
+                <div class="icon">📝</div>
+                <h3>New Reservation</h3>
+                <p>Book a room for a guest</p>
             </div>
             
             <div class="menu-card" onclick="location.href='staff-reservations.jsp'">
-                <div class="icon">📊</div>
-                <h3>View Reservations</h3>
-                <p>Monitor all reservations</p>
+                <div class="icon">📋</div>
+                <h3>Manage Reservations</h3>
+                <p>View, edit, and manage bookings</p>
             </div>
-                        
+            
+            <div class="menu-card" onclick="location.href='staff-reservations.jsp?filter=active'">
+                <div class="icon">🔍</div>
+                <h3>Active Bookings</h3>
+                <p>View current active reservations</p>
+            </div>
+            
+            <div class="menu-card" onclick="location.href='staff-reservations.jsp'">
+                <div class="icon">💰</div>
+                <h3>Billing</h3>
+                <p>Generate guest bills</p>
+            </div>
         </div>
     </div>
 </body>
