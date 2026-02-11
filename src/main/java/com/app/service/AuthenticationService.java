@@ -42,24 +42,33 @@ public class AuthenticationService {
     }
 
     //Staff Registration 
-    public boolean registerStaff(String username, String password, String fullName, String role) {
+    public boolean registerStaff(String username, String password, String fullName, String email, String role) {
+        System.out.println("\n[DEBUG] Starting staff registration for username: " + username);
+        
         // Already registered user check
         String checkQuery = "SELECT COUNT(*) as count FROM users WHERE username = ?";
-        String insertQuery = "INSERT INTO users (username, password, full_name, role) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO users (username, password, full_name, role, email) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConnection.getConnection()) {
+            System.out.println("[DEBUG] Database connection established");
             
             // Check username 
             try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
                 checkStmt.setString(1, username);
                 ResultSet rs = checkStmt.executeQuery();
-                rs.next();
                 
-                if (rs.getInt("count") > 0) {
-                    System.out.println("\n✗ Username already exists! Please try a different username.");
-                    return false;
+                if (rs.next()) {
+                    int count = rs.getInt("count");
+                    System.out.println("[DEBUG] Username check - Found " + count + " existing users with this username");
+                    
+                    if (count > 0) {
+                        System.out.println("\n✗ Username already exists! Please try a different username.");
+                        return false;
+                    }
                 }
             }
+            
+            System.out.println("[DEBUG] Username is available, proceeding with insert");
             
             // Insert new staff 
             try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
@@ -67,20 +76,25 @@ public class AuthenticationService {
                 insertStmt.setString(2, password);
                 insertStmt.setString(3, fullName);
                 insertStmt.setString(4, role);
+                insertStmt.setString(5, email);
                 
+                System.out.println("[DEBUG] Executing insert statement...");
                 int rowsAffected = insertStmt.executeUpdate();
+                System.out.println("[DEBUG] Rows affected: " + rowsAffected);
                 
                 if (rowsAffected > 0) {
                     System.out.println("\n✓ Staff member registered successfully!");
                     System.out.println("Username: " + username + ", Role: " + role);
                     return true;
+                } else {
+                    System.out.println("[DEBUG] Insert failed - no rows affected");
+                    return false;
                 }
             }
             
-            return false;
-            
         } catch (SQLException e) {
             System.err.println("Database error during registration: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -132,7 +146,7 @@ public class AuthenticationService {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
 
-    public String validateStaffRegistration(String username, String password, String fullName, String role) {
+    public String validateStaffRegistration(String username, String password, String fullName, String email, String role) {
         if (username == null || username.trim().isEmpty()) {
             return "Username is required";
         }
@@ -150,6 +164,12 @@ public class AuthenticationService {
         }
         if (!isValidName(fullName)) {
             return "Full name must contain only letters";
+        }
+        if (email == null || email.trim().isEmpty()) {
+            return "Email is required";
+        }
+        if (!isValidEmail(email)) {
+            return "Invalid email format";
         }
         if (role == null || role.trim().isEmpty()) {
             return "Role is required";
