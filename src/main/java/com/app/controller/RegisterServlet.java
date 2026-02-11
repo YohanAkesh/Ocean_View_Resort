@@ -42,10 +42,11 @@ public class RegisterServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String fullName = request.getParameter("fullName");
+        String email = request.getParameter("email");
         String role = request.getParameter("role");
         
         // Validate input using service
-        String error = authService.validateStaffRegistration(username, password, fullName, role);
+        String error = authService.validateStaffRegistration(username, password, fullName, email, role);
         
         if (error != null) {
             response.sendRedirect("register.jsp?error=" + java.net.URLEncoder.encode(error, "UTF-8"));
@@ -53,7 +54,7 @@ public class RegisterServlet extends HttpServlet {
         }
         
         // Register the staff member
-        if (authService.registerStaff(username, password, fullName, role)) {
+        if (authService.registerStaff(username, password, fullName, email, role)) {
             response.sendRedirect("register.jsp?success=true");
         } else {
             response.sendRedirect("register.jsp?error=" + 

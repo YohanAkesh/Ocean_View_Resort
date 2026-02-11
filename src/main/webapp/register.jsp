@@ -24,7 +24,11 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(rgba(0, 40, 83, 0.6), rgba(0, 40, 83, 0.6)),
+                        url('https://www.palaceresorts.com/all_inclusive_family_resort_palace_resorts_af8a736938.webp');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -205,6 +209,11 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter email address">
+                </div>
+                
+                <div class="form-group">
                     <label for="role">Role</label>
                     <select id="role" name="role" required>
                         <option value="">Select a role</option>
@@ -226,6 +235,7 @@
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
             var fullName = document.getElementById("fullName").value;
+            var email = document.getElementById("email").value;
             var role = document.getElementById("role").value;
             
             if (username.length < 3) {
@@ -240,6 +250,11 @@
             
             if (!fullName.match(/^[a-zA-Z\s]+$/)) {
                 alert("Full name must contain only letters");
+                return false;
+            }
+            
+            if (!email.match(/^[A-Za-z0-9+_.-]+@(.+)$/)) {
+                alert("Please enter a valid email address");
                 return false;
             }
             
