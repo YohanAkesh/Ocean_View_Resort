@@ -41,17 +41,24 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            background: linear-gradient(rgba(0, 40, 83, 0.6), rgba(0, 40, 83, 0.6)),
+                        url('https://www.palaceresorts.com/all_inclusive_family_resort_palace_resorts_af8a736938.webp');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
         }
         
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(0, 40, 83, 0.95) 0%, rgba(0, 113, 188, 0.95) 100%);
             color: white;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
         
         .navbar h1 {
@@ -103,26 +110,31 @@
         }
         
         .header-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .header-section h2 {
-            color: #333;
+            color: #002853;
+            font-weight: 700;
         }
         
         .search-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .search-form {
@@ -132,37 +144,60 @@
         
         .search-input {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0071bc;
+            box-shadow: 0 0 0 4px rgba(0, 113, 188, 0.15);
         }
         
         .btn-search {
-            background: #667eea;
+            background: linear-gradient(135deg, #002853 0%, #0071bc 100%);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
+            padding: 14px 35px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 40, 83, 0.3);
+        }
+        
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 40, 83, 0.4);
         }
         
         .btn-clear {
-            background: #f5f5f5;
-            color: #666;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            color: #002853;
+            border: 2px solid #e0e0e0;
+            padding: 12px 25px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-clear:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: #0071bc;
         }
         
         .table-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             overflow-x: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         table {
@@ -177,7 +212,7 @@
         }
         
         th {
-            background: #667eea;
+            background: linear-gradient(135deg, #002853 0%, #0071bc 100%);
             color: white;
             font-weight: 600;
             position: sticky;
@@ -185,7 +220,7 @@
         }
         
         tr:hover {
-            background: #f9f9f9;
+            background: rgba(0, 113, 188, 0.05);
         }
         
         .status-badge {
@@ -217,27 +252,50 @@
         }
         
         .action-btn {
-            padding: 5px 10px;
+            padding: 8px 14px;
             border: none;
-            border-radius: 3px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
             margin-right: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
         }
         
         .btn-edit {
-            background: #ffc107;
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
             color: #000;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+        
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #ffca28 0%, #ffc107 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
         }
         
         .btn-cancel {
-            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             color: white;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-cancel:hover {
+            background: linear-gradient(135deg, #e4606d 0%, #dc3545 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
         }
         
         .btn-status {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
             color: white;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-status:hover {
+            background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
         }
         
         .error {
@@ -258,6 +316,13 @@
             border: 1px solid #c3e6cb;
         }
         
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -266,16 +331,18 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 40, 83, 0.7);
+            backdrop-filter: blur(5px);
         }
         
         .modal-content {
-            background: white;
+            background: rgba(255, 255, 255, 0.98);
             margin: 50px auto;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 40px;
+            border-radius: 15px;
             max-width: 600px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .modal-header {
@@ -286,7 +353,8 @@
         }
         
         .modal-header h3 {
-            color: #333;
+            color: #002853;
+            font-weight: 700;
         }
         
         .close {
@@ -306,8 +374,8 @@
         
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
+            margin-bottom: 8px;
+            color: #002853;
             font-weight: 600;
         }
         
@@ -315,10 +383,19 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0071bc;
+            box-shadow: 0 0 0 4px rgba(0, 113, 188, 0.15);
         }
         
         .form-group textarea {
@@ -326,22 +403,24 @@
             min-height: 80px;
         }
         
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        
         .btn-add {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
+            padding: 14px 28px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-add:hover {
+            background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
     </style>
 </head>
