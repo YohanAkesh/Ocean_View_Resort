@@ -14,7 +14,11 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(rgba(0, 40, 83, 0.6), rgba(0, 40, 83, 0.6)),
+                        url('https://www.palaceresorts.com/all_inclusive_family_resort_palace_resorts_af8a736938.webp');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -28,11 +32,13 @@
         }
         
         .login-box {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            animation: slideUp 0.5s ease-out;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            padding: 50px 40px;
+            animation: slideUp 0.6s ease-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         @keyframes slideUp {
@@ -52,14 +58,16 @@
         }
         
         .header h1 {
-            color: #333;
-            font-size: 28px;
+            color: #002853;
+            font-size: 32px;
             margin-bottom: 10px;
+            font-weight: 700;
         }
         
         .header p {
-            color: #666;
-            font-size: 14px;
+            color: #0071bc;
+            font-size: 15px;
+            font-weight: 500;
         }
         
         .form-group {
@@ -69,44 +77,48 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
+            color: #002853;
+            font-weight: 600;
             font-size: 14px;
         }
         
         input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
         }
         
         input[type="text"]:focus,
         input[type="password"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #0071bc;
+            box-shadow: 0 0 0 4px rgba(0, 113, 188, 0.15);
+            background: white;
         }
         
         button {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 14px;
+            background: linear-gradient(135deg, #002853 0%, #0071bc 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 40, 83, 0.3);
         }
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 40, 83, 0.4);
+            background: linear-gradient(135deg, #003366 0%, #0088dd 100%);
         }
         
         button:active {
@@ -135,7 +147,7 @@
         }
         
         .footer a {
-            color: #667eea;
+            color: #0071bc;
             text-decoration: none;
             font-weight: 600;
         }
