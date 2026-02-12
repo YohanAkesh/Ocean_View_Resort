@@ -5,7 +5,6 @@ import com.app.model.Room;
 import com.app.util.DatabaseConnection;
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -174,8 +173,10 @@ public class ReservationService {
                     checkIn,
                     checkOut,
                     nights,
+                    rs.getInt("number_of_guests"),
                     rs.getDouble("total_cost"),
                     rs.getString("status"),
+                    rs.getString("special_requests"),
                     rs.getInt("created_by")
                 );
                 reservations.add(reservation);
@@ -220,8 +221,10 @@ public class ReservationService {
                     checkIn,
                     checkOut,
                     nights,
+                    rs.getInt("number_of_guests"),
                     rs.getDouble("total_cost"),
                     rs.getString("status"),
+                    rs.getString("special_requests"),
                     rs.getInt("created_by")
                 );
             }
@@ -355,8 +358,10 @@ public class ReservationService {
                     checkIn,
                     checkOut,
                     nights,
+                    rs.getInt("number_of_guests"),
                     rs.getDouble("total_cost"),
                     rs.getString("status"),
+                    rs.getString("special_requests"),
                     rs.getInt("created_by")
                 );
                 reservations.add(reservation);
