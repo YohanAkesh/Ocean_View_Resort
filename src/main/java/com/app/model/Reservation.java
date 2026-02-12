@@ -13,13 +13,16 @@ public class Reservation {
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private int numberOfNights;
+    private int numberOfGuests;
     private double totalCost;
     private String status;
+    private String specialRequests;
     private int createdBy;
 
     public Reservation(int reservationId, String reservationNumber, String guestName, String address,
                       String contactNumber, String email, int roomId, LocalDate checkInDate,
-                      LocalDate checkOutDate, int numberOfNights, double totalCost, String status, int createdBy) {
+                      LocalDate checkOutDate, int numberOfNights, int numberOfGuests, double totalCost, 
+                      String status, String specialRequests, int createdBy) {
         this.reservationId = reservationId;
         this.reservationNumber = reservationNumber;
         this.guestName = guestName;
@@ -30,14 +33,17 @@ public class Reservation {
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.numberOfNights = numberOfNights;
+        this.numberOfGuests = numberOfGuests;
         this.totalCost = totalCost;
         this.status = status;
+        this.specialRequests = specialRequests;
         this.createdBy = createdBy;
     }
 
     public Reservation(String reservationNumber, String guestName, String address,
                       String contactNumber, String email, int roomId, LocalDate checkInDate,
-                      LocalDate checkOutDate, int numberOfNights, double totalCost, int createdBy) {
+                      LocalDate checkOutDate, int numberOfNights, int numberOfGuests, double totalCost, 
+                      String specialRequests, int createdBy) {
         this.reservationNumber = reservationNumber;
         this.guestName = guestName;
         this.address = address;
@@ -47,8 +53,10 @@ public class Reservation {
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.numberOfNights = numberOfNights;
+        this.numberOfGuests = numberOfGuests;
         this.totalCost = totalCost;
         this.status = "ACTIVE";
+        this.specialRequests = specialRequests;
         this.createdBy = createdBy;
     }
 
@@ -156,6 +164,22 @@ public class Reservation {
         this.createdBy = createdBy;
     }
 
+    public int getNumberOfGuests() {
+        return numberOfGuests;
+    }
+
+    public void setNumberOfGuests(int numberOfGuests) {
+        this.numberOfGuests = numberOfGuests;
+    }
+
+    public String getSpecialRequests() {
+        return specialRequests;
+    }
+
+    public void setSpecialRequests(String specialRequests) {
+        this.specialRequests = specialRequests;
+    }
+
     @Override
     public String toString() {
         return "Reservation{" +
@@ -169,8 +193,10 @@ public class Reservation {
                 ", checkInDate=" + checkInDate +
                 ", checkOutDate=" + checkOutDate +
                 ", numberOfNights=" + numberOfNights +
+                ", numberOfGuests=" + numberOfGuests +
                 ", totalCost=" + totalCost +
                 ", status='" + status + '\'' +
+                ", specialRequests='" + specialRequests + '\'' +
                 ", createdBy=" + createdBy +
                 '}';
     }
