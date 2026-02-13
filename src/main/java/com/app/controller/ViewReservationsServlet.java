@@ -1,7 +1,8 @@
 package com.app.controller;
 
 import com.app.model.Reservation;
-import com.app.service.ReservationService;
+import com.app.service.IReservationService;
+import com.app.service.impl.ReservationServiceImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,12 +15,12 @@ import java.util.List;
 
 @WebServlet("/ViewReservationsServlet")
 public class ViewReservationsServlet extends HttpServlet {
-    private ReservationService reservationService;
+    private IReservationService reservationService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        reservationService = new ReservationService();
+        reservationService = new ReservationServiceImpl();
     }
 
     @Override

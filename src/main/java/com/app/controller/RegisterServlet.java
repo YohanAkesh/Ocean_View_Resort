@@ -1,7 +1,8 @@
 package com.app.controller;
 
 import com.app.model.User;
-import com.app.service.AuthenticationService;
+import com.app.service.IAuthenticationService;
+import com.app.service.impl.AuthenticationServiceImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,12 +15,12 @@ import java.io.IOException;
 //Resgistration handler
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
-    private AuthenticationService authService;
+    private IAuthenticationService authService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        authService = new AuthenticationService();
+        authService = new AuthenticationServiceImpl();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

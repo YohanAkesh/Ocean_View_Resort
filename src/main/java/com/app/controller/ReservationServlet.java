@@ -2,8 +2,10 @@ package com.app.controller;
 
 import com.app.model.User;
 import com.app.model.Guest;
-import com.app.service.ReservationService;
-import com.app.service.GuestService;
+import com.app.service.IReservationService;
+import com.app.service.IGuestService;
+import com.app.service.impl.ReservationServiceImpl;
+import com.app.service.impl.GuestServiceImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,14 +18,14 @@ import java.time.LocalDate;
 
 @WebServlet("/ReservationServlet")
 public class ReservationServlet extends HttpServlet {
-    private ReservationService reservationService;
-    private GuestService guestService;
+    private IReservationService reservationService;
+    private IGuestService guestService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        reservationService = new ReservationService();
-        guestService = new GuestService();
+        reservationService = new ReservationServiceImpl();
+        guestService = new GuestServiceImpl();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

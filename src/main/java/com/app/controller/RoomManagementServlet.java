@@ -1,8 +1,10 @@
 package com.app.controller;
 
 import com.app.model.User;
-import com.app.service.AuthenticationService;
-import com.app.service.RoomService;
+import com.app.service.IAuthenticationService;
+import com.app.service.IRoomService;
+import com.app.service.impl.AuthenticationServiceImpl;
+import com.app.service.impl.RoomServiceImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,12 +16,14 @@ import java.io.IOException;
 
 @WebServlet("/RoomManagementServlet")
 public class RoomManagementServlet extends HttpServlet {
-    private RoomService roomService;
+    private IRoomService roomService;
+    private IAuthenticationService authService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        roomService = new RoomService();
+        roomService = new RoomServiceImpl();
+        authService = new AuthenticationServiceImpl();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -32,7 +36,6 @@ public class RoomManagementServlet extends HttpServlet {
         }
 
         User user = (User) session.getAttribute("user");
-        AuthenticationService authService = new AuthenticationService();
         
         if (!authService.isAdmin(user)) {
             response.sendRedirect("dashboard.jsp?error=unauthorized");

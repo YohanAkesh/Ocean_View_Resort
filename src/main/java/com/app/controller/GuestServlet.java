@@ -1,7 +1,8 @@
 package com.app.controller;
 
 import com.app.model.User;
-import com.app.service.GuestService;
+import com.app.service.IGuestService;
+import com.app.service.impl.GuestServiceImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,12 +14,12 @@ import java.io.IOException;
 
 @WebServlet("/GuestServlet")
 public class GuestServlet extends HttpServlet {
-    private GuestService guestService;
+    private IGuestService guestService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        guestService = new GuestService();
+        guestService = new GuestServiceImpl();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
