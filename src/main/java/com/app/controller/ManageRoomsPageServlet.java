@@ -2,8 +2,10 @@ package com.app.controller;
 
 import com.app.model.Room;
 import com.app.model.User;
-import com.app.service.AuthenticationService;
-import com.app.service.RoomService;
+import com.app.service.IAuthenticationService;
+import com.app.service.IRoomService;
+import com.app.service.impl.AuthenticationServiceImpl;
+import com.app.service.impl.RoomServiceImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,14 +18,14 @@ import java.util.List;
 
 @WebServlet("/ManageRoomsPageServlet")
 public class ManageRoomsPageServlet extends HttpServlet {
-    private RoomService roomService;
-    private AuthenticationService authService;
+    private IRoomService roomService;
+    private IAuthenticationService authService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        roomService = new RoomService();
-        authService = new AuthenticationService();
+        roomService = new RoomServiceImpl();
+        authService = new AuthenticationServiceImpl();
     }
 
     @Override
