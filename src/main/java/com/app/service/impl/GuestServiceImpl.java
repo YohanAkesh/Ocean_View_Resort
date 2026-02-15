@@ -17,7 +17,7 @@ public class GuestServiceImpl implements IGuestService {
     public boolean addGuest(String firstName, String lastName, String email, String phoneNumber,
                           String address, String idType, String idNumber, String nationality, int createdBy) {
         
-        // Check if guest already exists by email or ID number
+        // Check if guest already exists 
         if (guestExistsByEmail(email)) {
             System.err.println("Guest with this email already exists");
             return false;
