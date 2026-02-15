@@ -116,18 +116,16 @@ public class ReservationServiceImpl implements IReservationService {
         }
 
         // Validate dates
-        if (checkInDate.isAfter(checkOutDate) || checkInDate.isBefore(LocalDate.now())) {
-            System.err.println("Invalid dates");
+        if (checkInDate.isAfter(checkOutDate)) {
+            System.err.println("Check-out date must be after check-in date");
             return false;
         }
 
-        // Get room information
         Room room = roomService.getRoomById(existingReservation.getRoomId());
         if (room == null) {
             return false;
         }
 
-        // Check room availability for new dates (exclude current reservation)
         if (!existingReservation.getCheckInDate().equals(checkInDate) || 
             !existingReservation.getCheckOutDate().equals(checkOutDate)) {
             if (!isRoomAvailable(existingReservation.getRoomId(), checkInDate, checkOutDate)) {
@@ -140,7 +138,7 @@ public class ReservationServiceImpl implements IReservationService {
         int numberOfNights = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         double totalCost = numberOfNights * room.getPricePerNight();
 
-        // Update reservation (guest info is in guests table, so we only update dates, cost and status)
+        // Update reservation 
         return reservationDAO.updateReservation(reservationId, checkInDate, checkOutDate,
                                                existingReservation.getNumberOfGuests(), 
                                                existingReservation.getSpecialRequests(), 
@@ -161,7 +159,6 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public List<Reservation> searchReservations(String searchTerm) {
-        // For now, get all reservations and filter (could be optimized in DAO)
         List<Reservation> allReservations = getAllReservations();
         List<Reservation> filtered = new ArrayList<>();
         

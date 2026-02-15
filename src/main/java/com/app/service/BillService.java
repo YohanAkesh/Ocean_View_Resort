@@ -11,8 +11,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class BillService {
-    private static final double TAX_RATE = 0.10; // 10% tax
-    private static final double SERVICE_CHARGE_RATE = 0.05; // 5% service charge
+    private static final double TAX_RATE = 0.10;
+    private static final double SERVICE_CHARGE_RATE = 0.05; 
     
     private ReservationService reservationService;
     private RoomService roomService;
@@ -21,10 +21,7 @@ public class BillService {
         this.reservationService = new ReservationService();
         this.roomService = new RoomService();
     }
-
-    /**
-     * Generate a Bill object from a reservation
-     */
+    //Generate a Bill object from a reservation
     public Bill generateBillFromReservation(int reservationId, String generatedBy) {
         Reservation reservation = reservationService.getReservationById(reservationId);
         if (reservation == null) {
@@ -69,10 +66,7 @@ public class BillService {
             generatedBy
         );
     }
-
-    /**
-     * Generate a unique bill number
-     */
+     // Generate a unique bill number
     private String generateBillNumber() {
         LocalDate now = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -80,10 +74,7 @@ public class BillService {
         long timestamp = System.currentTimeMillis() % 10000;
         return String.format("BILL-%s-%04d", dateStr, timestamp);
     }
-
-    /**
-     * Generate PDF document for a bill
-     */
+     //Generate PDF document for a bill
     public ByteArrayOutputStream generateBillPDF(Bill bill) throws DocumentException {
         Document document = new Document(PageSize.A4);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
