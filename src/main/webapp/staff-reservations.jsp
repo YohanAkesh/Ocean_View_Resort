@@ -231,6 +231,11 @@
             display: inline-block;
         }
         
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
         .status-active {
             background: #d4edda;
             color: #155724;
@@ -241,9 +246,14 @@
             color: #004085;
         }
         
-        .status-completed {
+        .status-checked_in {
             background: #d1ecf1;
             color: #0c5460;
+        }
+        
+        .status-checked_out {
+            background: #d4edda;
+            color: #155724;
         }
         
         .status-cancelled {
@@ -520,7 +530,7 @@
                                     data-status="<%= reservation.getStatus() %>">
                                 Edit
                             </button>
-                            <% if (!"CANCELLED".equals(reservation.getStatus()) && !"COMPLETED".equals(reservation.getStatus())) { %>
+                            <% if (!"CANCELLED".equals(reservation.getStatus()) && !"CHECKED_OUT".equals(reservation.getStatus())) { %>
                             <button class="action-btn btn-status" data-id="<%= reservation.getReservationId() %>">
                                 Update Status
                             </button>
@@ -586,9 +596,10 @@
                 <div class="form-group">
                     <label for="editStatus">Status *</label>
                     <select id="editStatus" name="status" required>
-                        <option value="ACTIVE">Active</option>
+                        <option value="PENDING">Pending</option>
                         <option value="CONFIRMED">Confirmed</option>
-                        <option value="COMPLETED">Completed</option>
+                        <option value="CHECKED_IN">Checked In</option>
+                        <option value="CHECKED_OUT">Checked Out</option>
                         <option value="CANCELLED">Cancelled</option>
                     </select>
                 </div>
@@ -612,9 +623,10 @@
                 <div class="form-group">
                     <label for="newStatus">Select New Status *</label>
                     <select id="newStatus" name="status" required>
-                        <option value="ACTIVE">Active</option>
+                        <option value="PENDING">Pending</option>
                         <option value="CONFIRMED">Confirmed</option>
-                        <option value="COMPLETED">Completed</option>
+                        <option value="CHECKED_IN">Checked In</option>
+                        <option value="CHECKED_OUT">Checked Out</option>
                     </select>
                 </div>
                 

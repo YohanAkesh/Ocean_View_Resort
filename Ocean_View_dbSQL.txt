@@ -1,0 +1,103 @@
+CREATE DATABASE IF NOT EXISTS ocean_view_resort;
+USE ocean_view_resort;
+
+-- Drop existing tables in reverse order of dependencies (to handle foreign keys)
+DROP TABLE IF EXISTS reservations;
+DROP TABLE IF EXISTS guests;
+DROP TABLE IF EXISTS rooms;
+DROP TABLE IF EXISTS users;
+
+-- Table: users
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(200) NOT NULL,
+    role ENUM('ADMIN', 'STAFF') NOT NULL DEFAULT 'STAFF',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: rooms
+CREATE TABLE rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_number VARCHAR(10) NOT NULL UNIQUE,
+    room_type VARCHAR(50) NOT NULL,
+    price_per_night DECIMAL(10, 2) NOT NULL,
+    status ENUM('AVAILABLE', 'OCCUPIED', 'MAINTENANCE') NOT NULL DEFAULT 'AVAILABLE',
+    capacity INT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_room_number (room_number),
+    INDEX idx_status (status),
+    INDEX idx_room_type (room_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: guests
+CREATE TABLE guests (
+    guest_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    address TEXT,
+    id_type ENUM('PASSPORT', 'DRIVERS_LICENSE', 'NATIONAL_ID', 'OTHER') NOT NULL,
+    id_number VARCHAR(50) NOT NULL,
+    nationality VARCHAR(100),
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL,
+    INDEX idx_email (email),
+    INDEX idx_phone (phone_number),
+    INDEX idx_id_number (id_number),
+    INDEX idx_full_name (first_name, last_name),
+    CONSTRAINT unique_email UNIQUE (email),
+    CONSTRAINT unique_id_number UNIQUE (id_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: reservations
+CREATE TABLE reservations (
+    reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+    guest_id INT NOT NULL,
+    room_id INT NOT NULL,
+    check_in_date DATE NOT NULL,
+    check_out_date DATE NOT NULL,
+    number_of_guests INT NOT NULL,
+    total_cost DECIMAL(10, 2) NOT NULL,
+    status ENUM('PENDING', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    special_requests TEXT,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (guest_id) REFERENCES guests(guest_id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE RESTRICT,
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL,
+    INDEX idx_guest_id (guest_id),
+    INDEX idx_room_id (room_id),
+    INDEX idx_check_in (check_in_date),
+    INDEX idx_check_out (check_out_date),
+    INDEX idx_status (status),
+    INDEX idx_dates (check_in_date, check_out_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO users (username, email, password, full_name, role) 
+VALUES ('admin', 'admin@oceanview.com', 'admin123', 'System Administrator', 'ADMIN');
+
+INSERT INTO users (username, email, password, full_name, role) 
+VALUES ('staff', 'staff@oceanview.com', 'staff123', 'Front Desk Staff', 'STAFF');
+
+INSERT INTO rooms (room_number, room_type, price_per_night, status, capacity, description) VALUES
+('101', 'Standard Single', 75.00, 'AVAILABLE', 1, 'Cozy single room with garden view'),
+('102', 'Standard Double', 120.00, 'AVAILABLE', 2, 'Comfortable double room with balcony'),
+('103', 'Deluxe Double', 180.00, 'AVAILABLE', 2, 'Spacious room with ocean view'),
+('104', 'Family Suite', 250.00, 'AVAILABLE', 4, 'Large suite perfect for families'),
+('201', 'Standard Single', 75.00, 'AVAILABLE', 1, 'Single room on second floor'),
+('202', 'Standard Double', 120.00, 'AVAILABLE', 2, 'Double room on second floor'),
+('203', 'Deluxe Double', 180.00, 'AVAILABLE', 2, 'Premium room with ocean view'),
+('204', 'Honeymoon Suite', 300.00, 'AVAILABLE', 2, 'Romantic suite with jacuzzi'),
+('301', 'Penthouse', 500.00, 'AVAILABLE', 4, 'Luxury penthouse with panoramic views');
