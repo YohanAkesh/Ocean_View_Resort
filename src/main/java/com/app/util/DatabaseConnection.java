@@ -13,9 +13,8 @@ public class DatabaseConnection {
     private static final String DB_NAME = "ocean_view_resort";
     private static final String DB_FULL_URL = DB_URL + DB_NAME;
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "S7adowless_4olf@76"; // Change this to your MySQL password
+    private static final String DB_PASSWORD = "S7adowless_4olf@76"; 
     
-    // Static initializer to load the JDBC driver
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

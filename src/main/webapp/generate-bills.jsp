@@ -228,6 +228,11 @@
             display: inline-block;
         }
         
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
         .status-active {
             background: #d4edda;
             color: #155724;
@@ -238,9 +243,14 @@
             color: #004085;
         }
         
-        .status-completed {
+        .status-checked_in {
             background: #d1ecf1;
             color: #0c5460;
+        }
+        
+        .status-checked_out {
+            background: #d4edda;
+            color: #155724;
         }
         
         .status-cancelled {
