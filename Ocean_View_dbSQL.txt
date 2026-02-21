@@ -101,3 +101,739 @@ INSERT INTO rooms (room_number, room_type, price_per_night, status, capacity, de
 ('203', 'Deluxe Double', 180.00, 'AVAILABLE', 2, 'Premium room with ocean view'),
 ('204', 'Honeymoon Suite', 300.00, 'AVAILABLE', 2, 'Romantic suite with jacuzzi'),
 ('301', 'Penthouse', 500.00, 'AVAILABLE', 4, 'Luxury penthouse with panoramic views');
+
+-- ==========================================
+-- ADVANCED DATABASE FEATURES
+-- ==========================================
+
+-- ==========================================
+-- FUNCTIONS
+-- ==========================================
+
+-- Function: Calculate total cost for a reservation
+DELIMITER $$
+DROP FUNCTION IF EXISTS calculate_reservation_cost$$
+CREATE FUNCTION calculate_reservation_cost(
+    p_room_id INT,
+    p_check_in DATE,
+    p_check_out DATE
+) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_price_per_night DECIMAL(10,2);
+    DECLARE v_nights INT;
+    DECLARE v_total DECIMAL(10,2);
+    
+    -- Get room price
+    SELECT price_per_night INTO v_price_per_night
+    FROM rooms
+    WHERE room_id = p_room_id;
+    
+    -- Calculate number of nights
+    SET v_nights = DATEDIFF(p_check_out, p_check_in);
+    
+    -- Calculate total cost
+    SET v_total = v_price_per_night * v_nights;
+    
+    RETURN v_total;
+END$$
+DELIMITER ;
+
+-- Function: Check if room is available for given dates
+DELIMITER $$
+DROP FUNCTION IF EXISTS is_room_available$$
+CREATE FUNCTION is_room_available(
+    p_room_id INT,
+    p_check_in DATE,
+    p_check_out DATE
+) 
+RETURNS BOOLEAN
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_conflict_count INT;
+    
+    -- Check for overlapping reservations
+    SELECT COUNT(*) INTO v_conflict_count
+    FROM reservations
+    WHERE room_id = p_room_id
+      AND status NOT IN ('CANCELLED', 'CHECKED_OUT')
+      AND (
+          (p_check_in >= check_in_date AND p_check_in < check_out_date)
+          OR (p_check_out > check_in_date AND p_check_out <= check_out_date)
+          OR (p_check_in <= check_in_date AND p_check_out >= check_out_date)
+      );
+    
+    RETURN (v_conflict_count = 0);
+END$$
+DELIMITER ;
+
+-- Function: Calculate guest loyalty discount percentage
+DELIMITER $$
+DROP FUNCTION IF EXISTS calculate_loyalty_discount$$
+CREATE FUNCTION calculate_loyalty_discount(
+    p_guest_id INT
+) 
+RETURNS DECIMAL(5,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_reservation_count INT;
+    DECLARE v_discount DECIMAL(5,2);
+    
+    -- Count completed reservations
+    SELECT COUNT(*) INTO v_reservation_count
+    FROM reservations
+    WHERE guest_id = p_guest_id
+      AND status = 'CHECKED_OUT';
+    
+    -- Calculate discount based on loyalty
+    IF v_reservation_count >= 10 THEN
+        SET v_discount = 15.00;
+    ELSEIF v_reservation_count >= 5 THEN
+        SET v_discount = 10.00;
+    ELSEIF v_reservation_count >= 3 THEN
+        SET v_discount = 5.00;
+    ELSE
+        SET v_discount = 0.00;
+    END IF;
+    
+    RETURN v_discount;
+END$$
+DELIMITER ;
+
+-- Function: Validate email format
+DELIMITER $$
+DROP FUNCTION IF EXISTS is_valid_email$$
+CREATE FUNCTION is_valid_email(
+    p_email VARCHAR(100)
+) 
+RETURNS BOOLEAN
+DETERMINISTIC
+NO SQL
+BEGIN
+    RETURN p_email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$';
+END$$
+DELIMITER ;
+
+-- Function: Get room occupancy rate for a date range
+DELIMITER $$
+DROP FUNCTION IF EXISTS get_occupancy_rate$$
+CREATE FUNCTION get_occupancy_rate(
+    p_start_date DATE,
+    p_end_date DATE
+) 
+RETURNS DECIMAL(5,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_total_rooms INT;
+    DECLARE v_occupied_nights INT;
+    DECLARE v_total_nights INT;
+    DECLARE v_rate DECIMAL(5,2);
+    
+    SELECT COUNT(*) INTO v_total_rooms FROM rooms WHERE status != 'MAINTENANCE';
+    
+    SET v_total_nights = v_total_rooms * DATEDIFF(p_end_date, p_start_date);
+    
+    SELECT SUM(DATEDIFF(
+        LEAST(check_out_date, p_end_date),
+        GREATEST(check_in_date, p_start_date)
+    )) INTO v_occupied_nights
+    FROM reservations
+    WHERE status IN ('CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT')
+      AND check_in_date < p_end_date
+      AND check_out_date > p_start_date;
+    
+    IF v_total_nights > 0 THEN
+        SET v_rate = (IFNULL(v_occupied_nights, 0) / v_total_nights) * 100;
+    ELSE
+        SET v_rate = 0.00;
+    END IF;
+    
+    RETURN v_rate;
+END$$
+DELIMITER ;
+
+-- ==========================================
+-- STORED PROCEDURES
+-- ==========================================
+
+-- Procedure: Create a new reservation with validation
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_create_reservation$$
+CREATE PROCEDURE sp_create_reservation(
+    IN p_guest_id INT,
+    IN p_room_id INT,
+    IN p_check_in DATE,
+    IN p_check_out DATE,
+    IN p_number_of_guests INT,
+    IN p_special_requests TEXT,
+    IN p_created_by INT,
+    OUT p_reservation_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_room_capacity INT;
+    DECLARE v_is_available BOOLEAN;
+    DECLARE v_total_cost DECIMAL(10,2);
+    DECLARE v_room_status VARCHAR(20);
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        SET p_message = 'Database error occurred';
+        ROLLBACK;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validate dates
+    IF p_check_in >= p_check_out THEN
+        SET p_success = FALSE;
+        SET p_message = 'Check-out date must be after check-in date';
+        ROLLBACK;
+    ELSEIF p_check_in < CURDATE() THEN
+        SET p_success = FALSE;
+        SET p_message = 'Check-in date cannot be in the past';
+        ROLLBACK;
+    ELSE
+        -- Check room exists and get capacity
+        SELECT capacity, status INTO v_room_capacity, v_room_status
+        FROM rooms
+        WHERE room_id = p_room_id;
+        
+        IF v_room_capacity IS NULL THEN
+            SET p_success = FALSE;
+            SET p_message = 'Room not found';
+            ROLLBACK;
+        ELSEIF v_room_status = 'MAINTENANCE' THEN
+            SET p_success = FALSE;
+            SET p_message = 'Room is under maintenance';
+            ROLLBACK;
+        ELSEIF p_number_of_guests > v_room_capacity THEN
+            SET p_success = FALSE;
+            SET p_message = CONCAT('Room capacity exceeded. Maximum: ', v_room_capacity);
+            ROLLBACK;
+        ELSE
+            -- Check availability
+            SET v_is_available = is_room_available(p_room_id, p_check_in, p_check_out);
+            
+            IF NOT v_is_available THEN
+                SET p_success = FALSE;
+                SET p_message = 'Room is not available for selected dates';
+                ROLLBACK;
+            ELSE
+                -- Calculate total cost
+                SET v_total_cost = calculate_reservation_cost(p_room_id, p_check_in, p_check_out);
+                
+                -- Create reservation
+                INSERT INTO reservations (
+                    guest_id, room_id, check_in_date, check_out_date,
+                    number_of_guests, total_cost, special_requests, created_by, status
+                ) VALUES (
+                    p_guest_id, p_room_id, p_check_in, p_check_out,
+                    p_number_of_guests, v_total_cost, p_special_requests, p_created_by, 'PENDING'
+                );
+                
+                SET p_reservation_id = LAST_INSERT_ID();
+                SET p_success = TRUE;
+                SET p_message = 'Reservation created successfully';
+                
+                COMMIT;
+            END IF;
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Procedure: Update reservation status with business rules
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_update_reservation_status$$
+CREATE PROCEDURE sp_update_reservation_status(
+    IN p_reservation_id INT,
+    IN p_new_status VARCHAR(20),
+    OUT p_success BOOLEAN,
+    OUT p_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_current_status VARCHAR(20);
+    DECLARE v_room_id INT;
+    DECLARE v_check_in DATE;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        SET p_message = 'Database error occurred';
+        ROLLBACK;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Get current reservation details
+    SELECT status, room_id, check_in_date 
+    INTO v_current_status, v_room_id, v_check_in
+    FROM reservations
+    WHERE reservation_id = p_reservation_id;
+    
+    IF v_current_status IS NULL THEN
+        SET p_success = FALSE;
+        SET p_message = 'Reservation not found';
+        ROLLBACK;
+    ELSEIF v_current_status = 'CANCELLED' THEN
+        SET p_success = FALSE;
+        SET p_message = 'Cannot update cancelled reservation';
+        ROLLBACK;
+    ELSEIF v_current_status = 'CHECKED_OUT' THEN
+        SET p_success = FALSE;
+        SET p_message = 'Reservation already checked out';
+        ROLLBACK;
+    ELSE
+        -- Update reservation status
+        UPDATE reservations
+        SET status = p_new_status,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reservation_id = p_reservation_id;
+        
+        -- Update room status based on reservation status
+        IF p_new_status = 'CHECKED_IN' THEN
+            UPDATE rooms SET status = 'OCCUPIED' WHERE room_id = v_room_id;
+        ELSEIF p_new_status = 'CHECKED_OUT' OR p_new_status = 'CANCELLED' THEN
+            UPDATE rooms SET status = 'AVAILABLE' WHERE room_id = v_room_id;
+        END IF;
+        
+        SET p_success = TRUE;
+        SET p_message = 'Reservation status updated successfully';
+        
+        COMMIT;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Procedure: Check-in guest with validation
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_checkin_guest$$
+CREATE PROCEDURE sp_checkin_guest(
+    IN p_reservation_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_message VARCHAR(255)
+)
+BEGIN
+    DECLARE v_status VARCHAR(20);
+    DECLARE v_check_in_date DATE;
+    DECLARE v_room_id INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        SET p_message = 'Database error occurred';
+        ROLLBACK;
+    END;
+    
+    START TRANSACTION;
+    
+    SELECT status, check_in_date, room_id
+    INTO v_status, v_check_in_date, v_room_id
+    FROM reservations
+    WHERE reservation_id = p_reservation_id;
+    
+    IF v_status IS NULL THEN
+        SET p_success = FALSE;
+        SET p_message = 'Reservation not found';
+        ROLLBACK;
+    ELSEIF v_status = 'CANCELLED' THEN
+        SET p_success = FALSE;
+        SET p_message = 'Cannot check-in cancelled reservation';
+        ROLLBACK;
+    ELSEIF v_status = 'CHECKED_IN' THEN
+        SET p_success = FALSE;
+        SET p_message = 'Guest already checked in';
+        ROLLBACK;
+    ELSEIF v_check_in_date > CURDATE() THEN
+        SET p_success = FALSE;
+        SET p_message = 'Check-in date has not arrived yet';
+        ROLLBACK;
+    ELSE
+        -- Update reservation to CHECKED_IN
+        UPDATE reservations
+        SET status = 'CHECKED_IN',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reservation_id = p_reservation_id;
+        
+        -- Update room to OCCUPIED
+        UPDATE rooms
+        SET status = 'OCCUPIED'
+        WHERE room_id = v_room_id;
+        
+        SET p_success = TRUE;
+        SET p_message = 'Guest checked in successfully';
+        
+        COMMIT;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Procedure: Check-out guest and calculate final bill
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_checkout_guest$$
+CREATE PROCEDURE sp_checkout_guest(
+    IN p_reservation_id INT,
+    OUT p_success BOOLEAN,
+    OUT p_message VARCHAR(255),
+    OUT p_final_amount DECIMAL(10,2)
+)
+BEGIN
+    DECLARE v_status VARCHAR(20);
+    DECLARE v_room_id INT;
+    DECLARE v_guest_id INT;
+    DECLARE v_total_cost DECIMAL(10,2);
+    DECLARE v_discount_percent DECIMAL(5,2);
+    DECLARE v_discount_amount DECIMAL(10,2);
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        SET p_message = 'Database error occurred';
+        ROLLBACK;
+    END;
+    
+    START TRANSACTION;
+    
+    SELECT status, room_id, guest_id, total_cost
+    INTO v_status, v_room_id, v_guest_id, v_total_cost
+    FROM reservations
+    WHERE reservation_id = p_reservation_id;
+    
+    IF v_status IS NULL THEN
+        SET p_success = FALSE;
+        SET p_message = 'Reservation not found';
+        ROLLBACK;
+    ELSEIF v_status != 'CHECKED_IN' THEN
+        SET p_success = FALSE;
+        SET p_message = 'Guest must be checked in to check out';
+        ROLLBACK;
+    ELSE
+        -- Calculate loyalty discount
+        SET v_discount_percent = calculate_loyalty_discount(v_guest_id);
+        SET v_discount_amount = v_total_cost * (v_discount_percent / 100);
+        SET p_final_amount = v_total_cost - v_discount_amount;
+        
+        -- Update reservation to CHECKED_OUT
+        UPDATE reservations
+        SET status = 'CHECKED_OUT',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reservation_id = p_reservation_id;
+        
+        -- Update room to AVAILABLE
+        UPDATE rooms
+        SET status = 'AVAILABLE'
+        WHERE room_id = v_room_id;
+        
+        SET p_success = TRUE;
+        SET p_message = CONCAT('Guest checked out. Discount: ', v_discount_percent, '%');
+        
+        COMMIT;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Procedure: Get available rooms for date range
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_get_available_rooms$$
+CREATE PROCEDURE sp_get_available_rooms(
+    IN p_check_in DATE,
+    IN p_check_out DATE
+)
+BEGIN
+    SELECT r.*
+    FROM rooms r
+    WHERE r.status IN ('AVAILABLE', 'OCCUPIED')
+      AND NOT EXISTS (
+          SELECT 1
+          FROM reservations res
+          WHERE res.room_id = r.room_id
+            AND res.status NOT IN ('CANCELLED', 'CHECKED_OUT')
+            AND (
+                (p_check_in >= res.check_in_date AND p_check_in < res.check_out_date)
+                OR (p_check_out > res.check_in_date AND p_check_out <= res.check_out_date)
+                OR (p_check_in <= res.check_in_date AND p_check_out >= res.check_out_date)
+            )
+      )
+    ORDER BY r.room_number;
+END$$
+DELIMITER ;
+
+-- Procedure: Generate revenue report
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_generate_revenue_report$$
+CREATE PROCEDURE sp_generate_revenue_report(
+    IN p_start_date DATE,
+    IN p_end_date DATE
+)
+BEGIN
+    SELECT 
+        DATE(r.created_at) as report_date,
+        COUNT(r.reservation_id) as total_reservations,
+        SUM(r.total_cost) as total_revenue,
+        AVG(r.total_cost) as average_revenue,
+        COUNT(DISTINCT r.guest_id) as unique_guests,
+        COUNT(DISTINCT r.room_id) as rooms_used
+    FROM reservations r
+    WHERE r.created_at BETWEEN p_start_date AND p_end_date
+      AND r.status != 'CANCELLED'
+    GROUP BY DATE(r.created_at)
+    ORDER BY report_date DESC;
+END$$
+DELIMITER ;
+
+-- ==========================================
+-- TRIGGERS
+-- ==========================================
+
+-- Trigger: Validate guest data before insert
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_validate_guest_before_insert$$
+CREATE TRIGGER trg_validate_guest_before_insert
+BEFORE INSERT ON guests
+FOR EACH ROW
+BEGIN
+    -- Validate email format
+    IF NOT is_valid_email(NEW.email) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Invalid email format';
+    END IF;
+    
+    -- Validate phone number (basic check)
+    IF LENGTH(NEW.phone_number) < 10 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Phone number must be at least 10 digits';
+    END IF;
+    
+    -- Validate names
+    IF LENGTH(TRIM(NEW.first_name)) < 2 OR LENGTH(TRIM(NEW.last_name)) < 2 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'First name and last name must be at least 2 characters';
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Validate guest data before update
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_validate_guest_before_update$$
+CREATE TRIGGER trg_validate_guest_before_update
+BEFORE UPDATE ON guests
+FOR EACH ROW
+BEGIN
+    IF NOT is_valid_email(NEW.email) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Invalid email format';
+    END IF;
+    
+    IF LENGTH(NEW.phone_number) < 10 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Phone number must be at least 10 digits';
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Prevent room deletion if active reservations exist
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_prevent_room_deletion$$
+CREATE TRIGGER trg_prevent_room_deletion
+BEFORE DELETE ON rooms
+FOR EACH ROW
+BEGIN
+    DECLARE v_active_reservations INT;
+    
+    SELECT COUNT(*) INTO v_active_reservations
+    FROM reservations
+    WHERE room_id = OLD.room_id
+      AND status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN');
+    
+    IF v_active_reservations > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Cannot delete room with active reservations';
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Auto-update room status when reservation is created
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_update_room_status_on_reservation$$
+CREATE TRIGGER trg_update_room_status_on_reservation
+AFTER INSERT ON reservations
+FOR EACH ROW
+BEGIN
+    -- If check-in is today and status is confirmed, mark room as occupied
+    IF NEW.check_in_date = CURDATE() AND NEW.status = 'CONFIRMED' THEN
+        UPDATE rooms SET status = 'OCCUPIED' WHERE room_id = NEW.room_id;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Validate reservation dates before insert
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_validate_reservation_dates$$
+CREATE TRIGGER trg_validate_reservation_dates
+BEFORE INSERT ON reservations
+FOR EACH ROW
+BEGIN
+    -- Validate check-out is after check-in
+    IF NEW.check_out_date <= NEW.check_in_date THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Check-out date must be after check-in date';
+    END IF;
+    
+    -- Validate check-in is not in the past
+    IF NEW.check_in_date < CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Check-in date cannot be in the past';
+    END IF;
+    
+    -- Validate number of guests is positive
+    IF NEW.number_of_guests <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Number of guests must be greater than zero';
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Audit trail for reservation status changes
+-- First create audit table
+CREATE TABLE IF NOT EXISTS reservation_audit (
+    audit_id INT AUTO_INCREMENT PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    old_status VARCHAR(20),
+    new_status VARCHAR(20),
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_reservation_id (reservation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_audit_reservation_status$$
+CREATE TRIGGER trg_audit_reservation_status
+AFTER UPDATE ON reservations
+FOR EACH ROW
+BEGIN
+    IF OLD.status != NEW.status THEN
+        INSERT INTO reservation_audit (reservation_id, old_status, new_status)
+        VALUES (NEW.reservation_id, OLD.status, NEW.status);
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Prevent double booking
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_prevent_double_booking$$
+CREATE TRIGGER trg_prevent_double_booking
+BEFORE INSERT ON reservations
+FOR EACH ROW
+BEGIN
+    DECLARE v_conflict_count INT;
+    
+    SELECT COUNT(*) INTO v_conflict_count
+    FROM reservations
+    WHERE room_id = NEW.room_id
+      AND status NOT IN ('CANCELLED', 'CHECKED_OUT')
+      AND (
+          (NEW.check_in_date >= check_in_date AND NEW.check_in_date < check_out_date)
+          OR (NEW.check_out_date > check_in_date AND NEW.check_out_date <= check_out_date)
+          OR (NEW.check_in_date <= check_in_date AND NEW.check_out_date >= check_out_date)
+      );
+    
+    IF v_conflict_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Room is already booked for the selected dates';
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger: Auto-calculate total cost before insert
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_calculate_cost_before_insert$$
+CREATE TRIGGER trg_calculate_cost_before_insert
+BEFORE INSERT ON reservations
+FOR EACH ROW
+BEGIN
+    SET NEW.total_cost = calculate_reservation_cost(NEW.room_id, NEW.check_in_date, NEW.check_out_date);
+END$$
+DELIMITER ;
+
+-- ==========================================
+-- VIEWS (Additional advanced feature)
+-- ==========================================
+
+-- View: Current occupancy status
+CREATE OR REPLACE VIEW v_current_occupancy AS
+SELECT 
+    r.room_id,
+    r.room_number,
+    r.room_type,
+    r.status as room_status,
+    res.reservation_id,
+    res.guest_id,
+    CONCAT(g.first_name, ' ', g.last_name) as guest_name,
+    res.check_in_date,
+    res.check_out_date,
+    res.status as reservation_status
+FROM rooms r
+LEFT JOIN reservations res ON r.room_id = res.room_id 
+    AND res.status = 'CHECKED_IN'
+LEFT JOIN guests g ON res.guest_id = g.guest_id
+ORDER BY r.room_number;
+
+-- View: Upcoming check-ins
+CREATE OR REPLACE VIEW v_upcoming_checkins AS
+SELECT 
+    res.reservation_id,
+    res.check_in_date,
+    res.check_out_date,
+    CONCAT(g.first_name, ' ', g.last_name) as guest_name,
+    g.email,
+    g.phone_number,
+    r.room_number,
+    r.room_type,
+    res.number_of_guests,
+    res.total_cost,
+    res.special_requests
+FROM reservations res
+INNER JOIN guests g ON res.guest_id = g.guest_id
+INNER JOIN rooms r ON res.room_id = r.room_id
+WHERE res.status IN ('PENDING', 'CONFIRMED')
+  AND res.check_in_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+ORDER BY res.check_in_date;
+
+-- View: Guest reservation history
+CREATE OR REPLACE VIEW v_guest_history AS
+SELECT 
+    g.guest_id,
+    CONCAT(g.first_name, ' ', g.last_name) as guest_name,
+    g.email,
+    COUNT(res.reservation_id) as total_reservations,
+    SUM(CASE WHEN res.status = 'CHECKED_OUT' THEN 1 ELSE 0 END) as completed_stays,
+    SUM(CASE WHEN res.status = 'CANCELLED' THEN 1 ELSE 0 END) as cancelled_reservations,
+    SUM(res.total_cost) as total_spent,
+    MAX(res.check_out_date) as last_visit,
+    calculate_loyalty_discount(g.guest_id) as loyalty_discount
+FROM guests g
+LEFT JOIN reservations res ON g.guest_id = res.guest_id
+GROUP BY g.guest_id, g.first_name, g.last_name, g.email;
+
+-- View: Room revenue summary
+CREATE OR REPLACE VIEW v_room_revenue AS
+SELECT 
+    r.room_id,
+    r.room_number,
+    r.room_type,
+    r.price_per_night,
+    COUNT(res.reservation_id) as total_bookings,
+    SUM(res.total_cost) as total_revenue,
+    AVG(res.total_cost) as average_booking_value
+FROM rooms r
+LEFT JOIN reservations res ON r.room_id = res.room_id
+    AND res.status != 'CANCELLED'
+GROUP BY r.room_id, r.room_number, r.room_type, r.price_per_night
+ORDER BY total_revenue DESC;
