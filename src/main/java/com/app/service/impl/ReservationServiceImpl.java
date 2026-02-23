@@ -2,8 +2,11 @@ package com.app.service.impl;
 
 import com.app.dao.ReservationDAO;
 import com.app.dao.impl.ReservationDAOImpl;
+import com.app.model.Guest;
 import com.app.model.Reservation;
 import com.app.model.Room;
+import com.app.service.IEmailService;
+import com.app.service.IGuestService;
 import com.app.service.IReservationService;
 import com.app.service.IRoomService;
 import java.time.LocalDate;
@@ -14,10 +17,14 @@ import java.util.List;
 public class ReservationServiceImpl implements IReservationService {
     private final ReservationDAO reservationDAO;
     private final IRoomService roomService;
+    private final IEmailService emailService;
+    private final IGuestService guestService;
 
     public ReservationServiceImpl() {
         this.reservationDAO = new ReservationDAOImpl();
         this.roomService = new RoomServiceImpl();
+        this.emailService = new EmailServiceImpl();
+        this.guestService = new GuestServiceImpl();
     }
 
     @Override
@@ -85,9 +92,51 @@ public class ReservationServiceImpl implements IReservationService {
         double totalCost = numberOfNights * room.getPricePerNight();
 
         String reservationNumber = generateReservationNumber();
-        return reservationDAO.createReservation(reservationNumber, guestId, roomId, checkInDate, 
+        boolean created = reservationDAO.createReservation(reservationNumber, guestId, roomId, checkInDate, 
                                                checkOutDate, numberOfGuests, totalCost, "PENDING", 
                                                specialRequests, createdBy);
+        
+        // Send confirmation email if reservation was created successfully
+        if (created) {
+            try {
+                // Get guest details
+                Guest guest = guestService.getGuestById(guestId);
+                if (guest != null && guest.getEmail() != null && !guest.getEmail().trim().isEmpty()) {
+                    // Create a temporary reservation object with all details for email
+                    Reservation tempReservation = new Reservation(
+                        reservationNumber,
+                        guest.getFirstName() + " " + guest.getLastName(),
+                        guest.getAddress(),
+                        guest.getPhoneNumber(),
+                        guest.getEmail(),
+                        roomId,
+                        checkInDate,
+                        checkOutDate,
+                        numberOfNights,
+                        numberOfGuests,
+                        totalCost,
+                        specialRequests,
+                        createdBy
+                    );
+                    
+                    // Send email asynchronously to avoid blocking
+                    new Thread(() -> {
+                        boolean emailSent = emailService.sendReservationConfirmation(tempReservation, guest);
+                        if (emailSent) {
+                            System.out.println("Confirmation email sent to: " + guest.getEmail());
+                        } else {
+                            System.err.println("Failed to send confirmation email to: " + guest.getEmail());
+                        }
+                    }).start();
+                }
+            } catch (Exception e) {
+                // Log error but don't fail the reservation
+                System.err.println("Error sending confirmation email: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        return created;
     }
 
     @Override
