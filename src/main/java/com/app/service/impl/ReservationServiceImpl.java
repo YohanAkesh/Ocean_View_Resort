@@ -197,7 +197,21 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public boolean deleteReservation(int reservationId) {
-        return reservationDAO.deleteReservation(reservationId);
+        // Get reservation details to find the room ID
+        Reservation reservation = reservationDAO.getReservationById(reservationId);
+        if (reservation == null) {
+            return false;
+        }
+        
+        // Cancel the reservation
+        boolean cancelled = reservationDAO.deleteReservation(reservationId);
+        
+        // Update room status to AVAILABLE if cancellation was successful
+        if (cancelled) {
+            roomService.updateRoomStatus(reservation.getRoomId(), "AVAILABLE");
+        }
+        
+        return cancelled;
     }
 
     @Override

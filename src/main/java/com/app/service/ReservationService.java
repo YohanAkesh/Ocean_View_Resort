@@ -299,6 +299,12 @@ public class ReservationService {
 
     // Delete reservation (cancel)
     public boolean deleteReservation(int reservationId) {
+        // Get reservation details to find the room ID
+        Reservation reservation = getReservationById(reservationId);
+        if (reservation == null) {
+            return false;
+        }
+        
         String query = "UPDATE reservations SET status = 'CANCELLED' WHERE reservation_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -306,7 +312,13 @@ public class ReservationService {
 
             pstmt.setInt(1, reservationId);
             int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            
+            // Update room status to AVAILABLE if cancellation was successful
+            if (rowsAffected > 0) {
+                roomService.updateRoomStatus(reservation.getRoomId(), "AVAILABLE");
+                return true;
+            }
+            return false;
 
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());
