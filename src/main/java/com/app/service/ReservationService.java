@@ -133,7 +133,13 @@ public class ReservationService {
             pstmt.setInt(8, createdBy);
 
             int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            
+            // Update room status to OCCUPIED if reservation was created successfully
+            if (rowsAffected > 0) {
+                roomService.updateRoomStatus(roomId, "OCCUPIED");
+                return true;
+            }
+            return false;
 
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());

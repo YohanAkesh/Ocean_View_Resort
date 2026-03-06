@@ -96,8 +96,9 @@ public class ReservationServiceImpl implements IReservationService {
                                                checkOutDate, numberOfGuests, totalCost, "PENDING", 
                                                specialRequests, createdBy);
         
-        // Send confirmation email if reservation was created successfully
+        // Update room status to OCCUPIED and send confirmation email if reservation was created successfully
         if (created) {
+            roomService.updateRoomStatus(roomId, "OCCUPIED");
             try {
                 // Get guest details
                 Guest guest = guestService.getGuestById(guestId);
