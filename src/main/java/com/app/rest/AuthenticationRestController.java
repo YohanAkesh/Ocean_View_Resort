@@ -22,10 +22,7 @@ public class AuthenticationRestController {
         this.authService = new AuthenticationServiceImpl();
     }
 
-    /**
-     * Login endpoint
-     * POST /api/auth/login
-     */
+
     @POST
     @Path("/login")
     public Response login(LoginRequest loginRequest) {
@@ -60,10 +57,7 @@ public class AuthenticationRestController {
         }
     }
 
-    /**
-     * Register endpoint
-     * POST /api/auth/register
-     */
+
     @POST
     @Path("/register")
     public Response register(User user) {
@@ -108,10 +102,7 @@ public class AuthenticationRestController {
         }
     }
 
-    /**
-     * Check if username exists
-     * GET /api/auth/check-username?username=abc
-     */
+
     @GET
     @Path("/check-username")
     public Response checkUsername(@QueryParam("username") String username) {

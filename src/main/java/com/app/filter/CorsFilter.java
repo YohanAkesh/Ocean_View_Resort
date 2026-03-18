@@ -5,11 +5,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * CORS Filter to allow cross-origin requests to REST API
- * This is useful when accessing the API from a frontend application
- * hosted on a different domain or port
- */
 public class CorsFilter implements Filter {
 
     @Override

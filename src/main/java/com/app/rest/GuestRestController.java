@@ -22,10 +22,7 @@ public class GuestRestController {
         this.guestService = new GuestServiceImpl();
     }
 
-    /**
-     * Get all guests
-     * GET /api/guests
-     */
+
     @GET
     public Response getAllGuests() {
         try {
@@ -38,10 +35,7 @@ public class GuestRestController {
         }
     }
 
-    /**
-     * Get guest by ID
-     * GET /api/guests/{id}
-     */
+
     @GET
     @Path("/{id}")
     public Response getGuestById(@PathParam("id") int guestId) {
@@ -62,10 +56,7 @@ public class GuestRestController {
         }
     }
 
-    /**
-     * Search guests by name
-     * GET /api/guests/search?name=john
-     */
+
     @GET
     @Path("/search")
     public Response searchGuests(@QueryParam("name") String name) {
@@ -85,10 +76,7 @@ public class GuestRestController {
         }
     }
 
-    /**
-     * Add new guest
-     * POST /api/guests
-     */
+
     @POST
     public Response addGuest(GuestRequest guestRequest) {
         try {
@@ -136,10 +124,6 @@ public class GuestRestController {
         }
     }
 
-    /**
-     * Update guest
-     * PUT /api/guests/{id}
-     */
     @PUT
     @Path("/{id}")
     public Response updateGuest(@PathParam("id") int guestId, GuestRequest guestRequest) {
@@ -186,10 +170,7 @@ public class GuestRestController {
         }
     }
 
-    /**
-     * Delete guest
-     * DELETE /api/guests/{id}
-     */
+
     @DELETE
     @Path("/{id}")
     public Response deleteGuest(@PathParam("id") int guestId) {

@@ -21,10 +21,7 @@ public class BillRestController {
         this.billService = new BillService();
     }
 
-    /**
-     * Generate bill from reservation
-     * POST /api/bills/generate?reservationId=123&generatedBy=admin
-     */
+
     @POST
     @Path("/generate")
     public Response generateBill(
@@ -60,10 +57,7 @@ public class BillRestController {
         }
     }
 
-    /**
-     * Download bill as PDF
-     * GET /api/bills/{reservationId}/pdf?generatedBy=admin
-     */
+
     @GET
     @Path("/{reservationId}/pdf")
     @Produces("application/pdf")
@@ -106,10 +100,7 @@ public class BillRestController {
         }
     }
 
-    /**
-     * Get bill details (JSON format)
-     * GET /api/bills/{reservationId}?generatedBy=admin
-     */
+
     @GET
     @Path("/{reservationId}")
     public Response getBill(

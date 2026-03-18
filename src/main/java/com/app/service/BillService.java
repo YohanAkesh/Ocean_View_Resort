@@ -100,7 +100,7 @@ public class BillService {
             document.add(resortName);
 
             // Resort Address
-            Paragraph address = new Paragraph("123 Beach Road, Paradise Island | Phone: +1-555-0123 | Email: info@oceanviewresort.com", normalFont);
+            Paragraph address = new Paragraph("123 Beach Road, Galle | Phone: +1-555-0123 | Email: info@oceanviewresort.com", normalFont);
             address.setAlignment(Element.ALIGN_CENTER);
             address.setSpacingAfter(20);
             document.add(address);
