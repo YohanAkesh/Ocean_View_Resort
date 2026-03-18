@@ -2,7 +2,12 @@
 <%@ page import="com.app.model.Room" %>
 <%@ page import="com.app.service.RoomService" %>
 <%@ page import="java.util.List" %>
-
+<%
+    // Security: Prevent back button access
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+%>
 <%
     Object userObj = session.getAttribute("user");
     String role = (String) session.getAttribute("role");

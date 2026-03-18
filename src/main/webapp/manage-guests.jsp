@@ -3,6 +3,12 @@
 <%@ page import="com.app.service.GuestService" %>
 <%@ page import="java.util.List" %>
 <%
+    // Security: Prevent back button access
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+%>
+<%
     // Check if user is logged in
     Object userObj = session.getAttribute("user");
     if (userObj == null) {
