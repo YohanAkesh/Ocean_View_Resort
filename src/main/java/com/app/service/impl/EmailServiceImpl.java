@@ -128,7 +128,7 @@ public class EmailServiceImpl implements IEmailService {
         body.append("</div>");
         
         body.append("<div class='footer'>");
-        body.append("<p>Ocean View Resort | 123 Beach Avenue | Phone: (555) 123-4567</p>");
+        body.append("<p>Ocean View Resort | 123 Beach Galle | Phone: (555) 123-4567</p>");
         body.append("<p>This is an automated message. Please do not reply to this email.</p>");
         body.append("</div>");
         

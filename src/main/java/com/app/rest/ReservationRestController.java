@@ -23,10 +23,7 @@ public class ReservationRestController {
         this.reservationService = new ReservationServiceImpl();
     }
 
-    /**
-     * Get all reservations
-     * GET /api/reservations
-     */
+
     @GET
     public Response getAllReservations() {
         try {
@@ -39,10 +36,6 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Get reservation by ID
-     * GET /api/reservations/{id}
-     */
     @GET
     @Path("/{id}")
     public Response getReservationById(@PathParam("id") int reservationId) {
@@ -63,10 +56,7 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Get reservations by guest ID
-     * GET /api/reservations/guest/{guestId}
-     */
+
     @GET
     @Path("/guest/{guestId}")
     public Response getReservationsByGuestId(@PathParam("guestId") int guestId) {
@@ -82,10 +72,7 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Get pending reservations
-     * GET /api/reservations/status/pending
-     */
+
     @GET
     @Path("/status/pending")
     public Response getPendingReservations() {
@@ -102,10 +89,7 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Create reservation
-     * POST /api/reservations
-     */
+
     @POST
     public Response createReservation(ReservationRequest reservationRequest) {
         try {
@@ -170,10 +154,7 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Update reservation
-     * PUT /api/reservations/{id}
-     */
+
     @PUT
     @Path("/{id}")
     public Response updateReservation(@PathParam("id") int reservationId, ReservationRequest reservationRequest) {
@@ -213,10 +194,7 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Update reservation status
-     * PATCH /api/reservations/{id}/status
-     */
+
     @PATCH
     @Path("/{id}/status")
     public Response updateReservationStatus(
@@ -245,10 +223,7 @@ public class ReservationRestController {
         }
     }
 
-    /**
-     * Cancel reservation
-     * DELETE /api/reservations/{id}
-     */
+
     @DELETE
     @Path("/{id}")
     public Response cancelReservation(@PathParam("id") int reservationId) {

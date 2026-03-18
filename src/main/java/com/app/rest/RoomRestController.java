@@ -27,10 +27,7 @@ public class RoomRestController {
         this.reservationService = new ReservationServiceImpl();
     }
 
-    /**
-     * Get all rooms
-     * GET /api/rooms
-     */
+
     @GET
     public Response getAllRooms() {
         try {
@@ -43,10 +40,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Get room by ID
-     * GET /api/rooms/{id}
-     */
+
     @GET
     @Path("/{id}")
     public Response getRoomById(@PathParam("id") int roomId) {
@@ -67,10 +61,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Get available rooms
-     * GET /api/rooms/available
-     */
+
     @GET
     @Path("/available")
     public Response getAvailableRooms() {
@@ -84,10 +75,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Get available rooms for dates
-     * GET /api/rooms/available-for-dates?checkIn=2024-01-01&checkOut=2024-01-05
-     */
+
     @GET
     @Path("/available-for-dates")
     public Response getAvailableRoomsForDates(
@@ -119,10 +107,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Add new room
-     * POST /api/rooms
-     */
+
     @POST
     public Response addRoom(RoomRequest roomRequest) {
         try {
@@ -164,10 +149,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Update room
-     * PUT /api/rooms/{id}
-     */
+
     @PUT
     @Path("/{id}")
     public Response updateRoom(@PathParam("id") int roomId, RoomRequest roomRequest) {
@@ -210,10 +192,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Update room status
-     * PATCH /api/rooms/{id}/status
-     */
+
     @PATCH
     @Path("/{id}/status")
     public Response updateRoomStatus(@PathParam("id") int roomId, @QueryParam("status") String status) {
@@ -240,10 +219,7 @@ public class RoomRestController {
         }
     }
 
-    /**
-     * Delete room
-     * DELETE /api/rooms/{id}
-     */
+
     @DELETE
     @Path("/{id}")
     public Response deleteRoom(@PathParam("id") int roomId) {

@@ -4,11 +4,7 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * JAX-RS Application Configuration
- * This class registers all REST controllers automatically
- * URL mapping is configured in web.xml: /api/*
- */
+
 public class RestApplication extends Application {
     
     @Override
